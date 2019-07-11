@@ -1,0 +1,91 @@
+import requests
+from bs4 import BeautifulSoup
+import re
+
+import pymongo
+myclient = pymongo.MongoClient("mongodb://localhost:xxxxx/") # Conexion
+mydb = myclient["Ilunion"] # Base de datos
+
+
+def scrapping_TridAvisor(url,mycol):
+    web = requests.get(url)
+    web.status_code
+        #print(web)
+    soup = BeautifulSoup(web.content)
+    
+    opiniones = soup.find_all('div', {'class': 'hotels-hotel-review-community-content-Card__ui_card--3kTH_ hotels-hotel-review-community-content-Card__card--1MJgB hotels-hotel-review-community-content-Card__section--28b0a'})
+    
+    for opinion in opiniones:
+        to_mongo=dict()
+        names = opinion.find('div', {'class': 'social-member-event-MemberEventOnObjectBlock__event_type--3njyv'})
+        to_mongo['name'] = names.find('a',{'class': 'ui_header_link social-member-event-MemberEventOnObjectBlock__member--35-jC'}).text
+    #    print(name)
+        
+        to_mongo['tit'] = opinion.find('div', {'class': 'hotels-review-list-parts-ReviewTitle__reviewTitle--2Fauz'},'span').text 
+    #    titulo = tit.find('span').text
+    #    print(tit)
+        
+        to_mongo['text'] = opinion.find('q',{'class':'hotels-review-list-parts-ExpandableReview__reviewText--3oMkH'},'span').text
+    #    comentario = text.find('span').text
+    #    print(text)
+        
+        valo = opinion.find('div', {'class': 'hotels-review-list-parts-RatingLine__bubbles--1oCI4'})
+        to_mongo['valoracion'] = valo.find('span').get('class')[1]
+    #    print(valoracion)
+    #    valoracion = valo.find('span')
+        mycol.insert_one(to_mongo)
+        print('datos subidos a mongo')
+    
+# =============================================================================
+# HOTEL 1.- LUNION Suites Madrid
+# =============================================================================
+mycol = mydb["Suites"]
+for cont in range(0,55,5):
+    print(cont)
+    if cont == 0:
+        url = 'https://www.tripadvisor.es/Hotel_Review-g187514-d240863-Reviews-ILUNION_Suites_Madrid-Madrid.html'
+    else:
+        url = 'https://www.tripadvisor.es/Hotel_Review-g187514-d240863-Reviews-or'+str(cont)+'-ILUNION_Suites_Madrid-Madrid.html'
+    
+    scrapping_TridAvisor(url,mycol)
+        
+    
+
+# =============================================================================
+# HOTEL 2.- ILUNION Atrium Madrid
+# =============================================================================
+mycol = mydb["Atrium"]
+for cont in range(0,55,5):
+    print(cont)
+    if cont == 0:
+        url = 'https://www.tripadvisor.es/Hotel_Review-g187514-d1177124-Reviews-ILUNION_Atrium-Madrid.html'
+    else:
+        url = 'https://www.tripadvisor.es/Hotel_Review-g187514-d1177124-Reviews-or'+str(cont)+'-ILUNION_Atrium-Madrid.html'
+        
+    scrapping_TridAvisor(url,mycol)
+
+# =============================================================================
+# HOTEL 3.- ILUNION Pio XII Madrid
+# =============================================================================
+mycol = mydb["PioXII"]
+for cont in range(0,55,5):
+    print(cont)
+    if cont == 0:
+        url = 'https://www.tripadvisor.es/Hotel_Review-g187514-d228660-Reviews-ILUNION_Pio_XII-Madrid.html'
+    else:
+        url = 'https://www.tripadvisor.es/Hotel_Review-g187514-d228660-Reviews-or'+str(cont)+'-ILUNION_Pio_XII-Madrid.html'
+    
+    scrapping_TridAvisor(url,mycol)
+
+# =============================================================================
+# HOTEL 4.- ILUNION Alcala Madrid
+# =============================================================================
+mycol = mydb["Alcala"]
+for cont in range(0,55,5):
+    print(cont)
+    if cont == 0:
+        url = 'https://www.tripadvisor.es/Hotel_Review-g187514-d296924-Reviews-ILUNION_Alcala_Norte-Madrid.html'
+    else:
+        url = 'https://www.tripadvisor.es/Hotel_Review-g187514-d296924-Reviews-or'+str(cont)+'-ILUNION_Alcala_Norte-Madrid.html'
+    
+    scrapping_TridAvisor(url,mycol)
